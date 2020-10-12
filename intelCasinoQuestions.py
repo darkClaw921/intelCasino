@@ -18,7 +18,8 @@ import threading
 
 # Help files import
 import setings
-import intelCasinoQuestions
+import test 
+# import intelCasinoQuestions
 
 # VK setings
 vk_session = vk_api.VkApi(token = setings.vkDdkgtaApi)
@@ -65,36 +66,19 @@ start = False
 rowQuestion = 4
 columCell = 0
 
-# class CreateQuestions(threading.Thread):
+def keyboardCreater(ButtonText1, ButtonText2, ButtonText3, ButtonText4): 
+    keyboard = VkKeyboard(one_time=True)
+    keyboard.add_button(ButtonText1)
+    keyboard.add_line()
+    keyboard.add_button(ButtonText2)
+    keyboard.add_line()
+    keyboard.add_button(ButtonText3)
+    keyboard.add_line()
+    keyboard.add_button(ButtonText4)
 
-#     questions = "2"
-#     answer = "1"
+    keyboard = keyboard.get_keyboard()
 
-#     def __init__(self, questions, answer):
-#         self.questions = questions
-#         self.answer = answer
-    
-    
-    # def printQuestion(self, user_id, random_id, columCell, rowCell):
-
-    #     vk.messages.send( 
-    #                     user_id = user_id,
-    #                     random_id = random_id,
-    #                     message = self.questions,
-    #                     )
-
-    #     if getMessege(self.answer, user_id) :
-    #         if event.type == VkEventType.MESSAGE_NEW and event.to_me and event.user_id == user_id:
-    #             otvet = str(event.text)
-
-    #             sheet.update_cell(columCell, rowCell, "1")
-    #             sheet.update_cell(columCell+1 ,rowCell, str(otvet))
-    #     else: 
-    #         if event.type == VkEventType.MESSAGE_NEW and event.to_me and event.user_id == user_id:
-    #             otvet = str(event.text)
-
-    #             sheet.update_cell(columCell, rowCell, "0")
-    #             sheet.update_cell(columCell+1 ,rowCell, str(otvet))
+    return keyboard
 
 def printQuestion(random_id, user_id):
     global columCell, questionsData,rowQuestion
@@ -105,14 +89,36 @@ def printQuestion(random_id, user_id):
 
     firstConnection(user_id, privateColumCell)
     
-    for questions in questionsData:
-        vk.messages.send(
-            user_id=user_id,
-            random_id=random_id,
-            message=questions,
-        )
 
-        if getMessege(questionsData[questions], user_id):
+    for question in questionsData:
+
+        typeQuest = len(test.typeQuestions[question])
+
+        photo = None
+        keyboard = None
+
+        print(typeQuest)
+        if typeQuest == 1:
+            if test.typeQuestions[question] != [''] :
+                photo = test.typeQuestions[question].pop(0)
+        
+        elif typeQuest == 5:
+            photo = test.typeQuestions[question].pop(0)
+            keyboard = keyboardCreater(*test.typeQuestions[question])
+        
+        else:
+            print(test.typeQuestions[question])
+            keyboard = keyboardCreater(*test.typeQuestions[question])
+            
+        vk.messages.send(
+                    user_id=user_id,
+                    random_id=random_id,
+                    attachment = photo,
+                    message = question,
+                    keyboard = keyboard
+                )
+
+        if getMessege(questionsData[question], user_id):
 
             otvet = vk.messages.getHistory(user_id = user_id, count = 1)
             # распарсили ответ
@@ -173,20 +179,6 @@ def firstConnection(user_id, columCell):
     sheet.update_cell(columCell, 2, userInfo["first_name"])
     sheet.update_cell(columCell, 3, userInfo["last_name"])
 
-# def getQuestion(random_id, user_id, questions1):
-#     global columCell, rowQuestion
-
-#     firstConnection(user_id)
-
-#     privateColumCell = columCell
-#     privateRowCell = rowQuestion
-
-#     for questions in questionsData:
-#         doneQuestions = CreateQuestions(questions, questionsData[questions])
-       
-#         doneQuestions.printQuestion(user_id,random_id, privateColumCell, privateRowCell)
-#         privateRowCell += 1 
-        # print(": ",event.text)
         # input("ждем других \n")
         
 for event in longpoll.listen():
