@@ -19,6 +19,7 @@ import threading
 # Help files import
 import setings
 import test 
+import intelCasinoQuestionMain
 # import intelCasinoQuestions
 
 # VK setings
@@ -28,35 +29,36 @@ vk = vk_session.get_api()
 
 print('Создание таблицы ...')
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive'] # что то для чего-то нужно Костыль
-creds = ServiceAccountCredentials.from_json_keyfile_name(setings.vkViktorinaJson, scope) # Секретынй файл json для доступа к API
+creds = ServiceAccountCredentials.from_json_keyfile_name("/Users/igorgerasimov/Desktop/Python/intelectCasino/ViktorinaProfkom-50c0fbdcd821.json", scope) # Секретынй файл json для доступа к API
 client = gspread.authorize(creds)
 sheet = client.open('intelCasino').sheet1 # Имя таблицы
 
-def createCell(countCell):
-    sheet.update_cell(1, 1, "id пользователя")
-    sheet.update_cell(1, 2, "Имя ")
-    sheet.update_cell(1, 3, "Фамилия")
-    sheet.update_cell(1, 4, "Название команды")
-    indexCell = 4
+# def createCell(countCell):
+#     sheet.update_cell(1, 1, "id пользователя")
+#     sheet.update_cell(1, 2, "Имя ")
+#     sheet.update_cell(1, 3, "Фамилия")
+#     sheet.update_cell(1, 4, "Название команды")
+#     indexCell = 4
 
-    for numberQues in range(countCell):
-        indexCell += 1
-        sheet.update_cell(1, indexCell, f"Вопрос {numberQues+1}") 
+#     for numberQues in range(countCell):
+#         indexCell += 1
+#         sheet.update_cell(1, indexCell, f"Вопрос {numberQues+1}") 
 
-questionsData = { # Вопрос : ответ
-    "Как называеться ваша команда? " : "komanda",
-    """Один известный писатель рассказывал, что списал образ старушки - вредны со своей бывшей жены. 
-    При этом бабулька оказалась удивительно похожей на Коко Шанель. На голове у не всегда была 
-    шляпка со складной тульей,благодаря которой она и получила прозвище""" : '1',
+questionsData = intelCasinoQuestionMain.questions
+# questionsData = { # Вопрос : ответ
+#     "Как называеться ваша команда? " : "komanda",
+#     """Один известный писатель рассказывал, что списал образ старушки - вредны со своей бывшей жены. 
+#     При этом бабулька оказалась удивительно похожей на Коко Шанель. На голове у не всегда была 
+#     шляпка со складной тульей,благодаря которой она и получила прозвище""" : '1',
 
-    """Готовясь к приходу пирата Г. Моргана, монахи столицы Панамы выкрасили 
-    священный алтарь в белый цвет. Зачем они это сделали?""" : '2',
+#     """Готовясь к приходу пирата Г. Моргана, монахи столицы Панамы выкрасили 
+#     священный алтарь в белый цвет. Зачем они это сделали?""" : '2',
 
-    """Сделать это можно в банках или, например, на спортивных соревнованиях. Но, в отличие от банков, 
-    на спортивных соревнованиях сделать это можно лишь один раз. Ответьте двумя словами, что именно сделать?""" : '3'
-}
+#     """Сделать это можно в банках или, например, на спортивных соревнованиях. Но, в отличие от банков, 
+#     на спортивных соревнованиях сделать это можно лишь один раз. Ответьте двумя словами, что именно сделать?""" : '3'
+# }
 
-createCell(len(questionsData))
+# createCell(len(questionsData))
 
 print("Таблица создана")
 
@@ -92,23 +94,25 @@ def printQuestion(random_id, user_id):
 
     for question in questionsData:
 
-        typeQuest = len(test.typeQuestions[question])
+        typeQuest = len(intelCasinoQuestionMain.questions[question])
 
         photo = None
         keyboard = None
 
         print(typeQuest)
         if typeQuest == 1:
-            if test.typeQuestions[question] != [''] :
-                photo = test.typeQuestions[question].pop(0)
+            if intelCasinoQuestionMain.questions[question] != [''] :
+                # photo = intelCasinoQuestionMain.questions[question].pop(0)
+                photo = intelCasinoQuestionMain.questions[question]
         
         elif typeQuest == 5:
-            photo = test.typeQuestions[question].pop(0)
-            keyboard = keyboardCreater(*test.typeQuestions[question])
+            # photo = intelCasinoQuestionMain.questions[question].pop(0)
+            photo = intelCasinoQuestionMain.questions[question]
+            keyboard = keyboardCreater(*intelCasinoQuestionMain.questions[question])
         
         else:
-            print(test.typeQuestions[question])
-            keyboard = keyboardCreater(*test.typeQuestions[question])
+            print(intelCasinoQuestionMain.questions[question])
+            keyboard = keyboardCreater(*intelCasinoQuestionMain.questions[question])
             
         vk.messages.send(
                     user_id=user_id,
@@ -126,10 +130,11 @@ def printQuestion(random_id, user_id):
             otvet = otvet[0]
             otvet = otvet['text']
 
-            sheet.update_cell(privateColumCell, privateRowCell, "1")
-            sheet.update_cell(privateColumCell+1, privateRowCell, str(otvet))
+            sheet.update_cell(privateColumCell+1, privateRowCell, "1")
+            sheet.update_cell(privateColumCell, privateRowCell, str(otvet))
 
             privateRowCell += 1
+            # input("ждем других \n")
         else:
             
             otvet = vk.messages.getHistory(user_id = user_id, count = 1)
@@ -139,9 +144,10 @@ def printQuestion(random_id, user_id):
             otvet = otvet[0]
             otvet = otvet['text']
 
-            sheet.update_cell(privateColumCell, privateRowCell, "0")
-            sheet.update_cell(privateColumCell+1, privateRowCell, str(otvet))
+            sheet.update_cell(privateColumCell+1, privateRowCell, "0")
+            sheet.update_cell(privateColumCell, privateRowCell, str(otvet))
             privateRowCell += 1
+            # input("ждем других \n")
                     
 def getMessege (stringOtvet, user_id): # Получаем сообщение от конкретного пользователя
     for event in longpoll.listen(): # цикл для каждго ивента сервера
