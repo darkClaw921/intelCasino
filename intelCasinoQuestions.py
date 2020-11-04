@@ -23,7 +23,7 @@ import intelCasinoQuestionMain
 # import intelCasinoQuestions
 
 # VK setings
-vk_session = vk_api.VkApi(token = setings.vkDdkgtaApi)
+vk_session = vk_api.VkApi(token = setings.vkIntelCasinoApi)
 longpoll = VkLongPoll(vk_session)
 vk = vk_session.get_api()
 
@@ -61,12 +61,25 @@ questionsData = intelCasinoQuestionMain.questions
 # createCell(len(questionsData))
 
 print("Таблица создана")
-
+nextQuestion = True 
 usersId = [] # список людей которые уже учавствуют или уже прошли тест
 usersId.append(0) # добавляем фантомного пльзователя 
 start = False
 rowQuestion = 4
 columCell = 0
+
+def inputNextQuestion():
+    global nextQuestion
+
+    while True:
+        input('Отправить следующий вопрос? ')
+        
+        nextQuestion = False
+        time.sleep(3)
+
+        nextQuestion = True
+
+Thread(target=inputNextQuestion).start()
 
 def keyboardCreater(ButtonText1, ButtonText2, ButtonText3, ButtonText4): 
     keyboard = VkKeyboard(one_time=True)
@@ -83,7 +96,7 @@ def keyboardCreater(ButtonText1, ButtonText2, ButtonText3, ButtonText4):
     return keyboard
 
 def printQuestion(random_id, user_id):
-    global columCell, questionsData,rowQuestion
+    global columCell, questionsData, rowQuestion, nextQuestion
     
     columCell += 2
     privateColumCell = columCell
@@ -134,6 +147,8 @@ def printQuestion(random_id, user_id):
             sheet.update_cell(privateColumCell, privateRowCell, str(otvet))
 
             privateRowCell += 1
+            while nextQuestion:
+                time.sleep(1)
             # input("ждем других \n")
         else:
             
@@ -147,6 +162,13 @@ def printQuestion(random_id, user_id):
             sheet.update_cell(privateColumCell+1, privateRowCell, "0")
             sheet.update_cell(privateColumCell, privateRowCell, str(otvet))
             privateRowCell += 1
+            
+            while nextQuestion:
+                time.sleep(1)
+            
+            # time.sleep(2)
+
+            
             # input("ждем других \n")
                     
 def getMessege (stringOtvet, user_id): # Получаем сообщение от конкретного пользователя
