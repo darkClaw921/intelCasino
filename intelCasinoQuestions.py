@@ -208,15 +208,24 @@ def firstConnection(user_id, columCell):
     sheet.update_cell(columCell, 3, userInfo["last_name"])
 
         # input("ждем других \n")
-        
+startMessage = "1"    
+
 for event in longpoll.listen():
     print(event.type)
 
     if event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text:
-        vk.messages.getConversations(offset = 0, count = 1)  
-        if event.text == "А" or 'а':
+        vk.messages.getConversations(offset = 0, count = 1) 
+
+        startMessage = event.text 
+
+        print(startMessage == ('Казино ' or "казино " or 'Казино' or "казино"))
+        # print(startMessage == 'Да')
+        if (startMessage == ('Казино' or 'казино' or 'Казино ' or 'казино ')):
             start = True
+        else:
+            start = False
         # start = getMessege("2020", event.user_id)
+
         if start:
             whoUser = newUser()
             # whoUser = True
@@ -228,4 +237,6 @@ for event in longpoll.listen():
                 Thread(target=printQuestion, args=(event.random_id, event.user_id,)).start() # Запуск нового потока для нового пользвоателя
             else:
                 print("Старый пользователь")
+        else: 
+            start = False
 
